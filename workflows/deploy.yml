@@ -2,24 +2,30 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]  # Или ваша основная ветка
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Create env file
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build with secret
         run: |
-          echo "REACT_APP_MY_SECRET=${{ secrets.MY_SECRET }}" > .env
-          
-      - name: Install and build
-        run: |
-          npm install
+          echo "REACT_APP_MY_SECRET=${{ secrets.REACT_APP_MY_SECRET }}" >> .env
           npm run build
-          
-      - name: Deploy
+        # Или используйте `VITE_` вместо `REACT_APP_`, если у вас Vite
+
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
